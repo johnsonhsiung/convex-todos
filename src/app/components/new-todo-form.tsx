@@ -1,15 +1,17 @@
 import { useState } from "react";
-type TodoFormProps = {
-  onCreate: (title: string, description: string) => void;
-};
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+
 // props (short for "properties") are a mechanism for passing data from a parent component to a child component
-export function NewTodoForm({ onCreate }: TodoFormProps) {
+export function NewTodoForm() {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const createTodo = useMutation(api.functions.createTodo);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onCreate(title, description);
+    await createTodo({title, description})
     setTitle("");
     setDescription("");
   };
