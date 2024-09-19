@@ -6,8 +6,9 @@ export default defineSchema({
     todos: defineTable({
         title: v.string(),
         description: v.string(),
-        completed: v.boolean()
-    }), 
+        completed: v.boolean(),
+        userId: v.string()
+    }).index('by_user_id', ["userId"])
 
 });
 
