@@ -1,17 +1,21 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import OpenAI from "openai";
+import { internal } from "./_generated/api"
+import { requireUser } from "./helper";
 
-const openai = new OpenAI({
+const openai = new OpenAI({ 
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPEN_ROUTER_API_KEY,
 });
 
 export const generateTodos = action({
+
   args: {
     prompt: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx); 
     const response = await openai.chat.completions.create({
       model: "openai/gpt-4o-mini",
       messages: [
@@ -27,6 +31,12 @@ export const generateTodos = action({
     const content = JSON.parse(response.choices[0].message.content!) as {
         todos : {title: string, description: string}[]
     }
-    return content.todos
+    await ctx.runMutation(internal.functions.createManyTodo, { 
+        todos: content.todos,
+        userID: user.tokenIdentifier
+    });
+
+
+    return content.todos; 
   },
 });

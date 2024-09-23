@@ -2,24 +2,33 @@ import { useAction } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 
+
 export function GenerateTodosForm() {
 
   const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false); 
 
   const generateTodo = useAction(api.actions.generateTodos)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-        const todos = await generateTodo({prompt})
-        console.log(todos)
+        setLoading(true); 
+        const todos = await generateTodo({prompt});
+        console.log(todos);
     } catch (error) {
-        console.log("Error", error)
+        console.log("Error", error); 
+    } finally {
+        setLoading(false); 
+
     }
     
     setPrompt("");
 
   };
+  if (loading) {
+    return <p>Generating Todos...</p>
+  }
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-2">

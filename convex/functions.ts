@@ -1,62 +1,80 @@
-
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./helper";
 
 export const listTodos = query({
-    handler: async (ctx) => {
-        const user = await requireUser(ctx);
-        return await ctx.db.query("todos").withIndex("by_user_id", q => q.eq("userId", user.tokenIdentifier)).collect();
-    }
- 
-}) ;
+  handler: async (ctx) => {
+    const user = await requireUser(ctx);
+    return await ctx.db
+      .query("todos")
+      .withIndex("by_user_id", (q) => q.eq("userId", user.tokenIdentifier))
+      .collect();
+  },
+});
 
 export const createTodo = mutation({
-    args: {
-        title: v.string(),
-        description: v.string()
-    },
-    handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
-        await ctx.db.insert("todos", {
-            title: args.title,
-            description: args.description,
-            completed: false,
-            userId: user.tokenIdentifier 
-        })
-    }
-
-
+  args: {
+    title: v.string(),
+    description: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    await ctx.db.insert("todos", {
+      title: args.title,
+      description: args.description,
+      completed: false,
+      userId: user.tokenIdentifier,
+    });
+  },
 });
 
 export const updateTodo = mutation({
-    args: {
-        id: v.id("todos"),
-        completed: v.boolean(),
-    },
-    handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
-        const todo = await ctx.db.get(args.id); 
-        if (todo?.userId !== user.tokenIdentifier) {
-            throw new Error('Unauthorized'); 
-        }
-
-        await ctx.db.patch(args.id, {
-            completed: args.completed
-        })
+  args: {
+    id: v.id("todos"),
+    completed: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const todo = await ctx.db.get(args.id);
+    if (todo?.userId !== user.tokenIdentifier) {
+      throw new Error("Unauthorized");
     }
-})
+
+    await ctx.db.patch(args.id, {
+      completed: args.completed,
+    });
+  },
+});
 
 export const removeTodo = mutation({
-    args: {
-        id: v.id("todos"),
-    },
-    handler : async (ctx, args) => {
-        const user = await requireUser(ctx);
-        const todo = await ctx.db.get(args.id); 
-        if (todo?.userId !== user.tokenIdentifier) {
-            throw new Error('Unauthorized'); 
-        } 
-        await ctx.db.delete(args.id)
+  args: {
+    id: v.id("todos"),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const todo = await ctx.db.get(args.id);
+    if (todo?.userId !== user.tokenIdentifier) {
+      throw new Error("Unauthorized");
     }
-})
+    await ctx.db.delete(args.id);
+  },
+});
+
+// not public
+export const createManyTodo = internalMutation({
+  args: {
+    userID: v.string(),
+    todos: v.array(v.object({ title: v.string(), description: v.string() })),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    for (const todo of args.todos) {
+        await ctx.db.insert("todos", {
+            title: todo.title,
+            description: todo.description,
+            completed: false,
+            userId: user.tokenIdentifier,
+        });
+    }
+  },
+});
