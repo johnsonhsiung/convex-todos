@@ -7,8 +7,13 @@ import {
   Box,
 } from "@mui/material";
 
+interface NewTodoFormProps {
+  isOpen: boolean; 
+  onClose: () => void; 
+}
+
 // props (short for "properties") are a mechanism for passing data from a parent component to a child component
-export function NewTodoForm({ isOpen, onClose }) {
+export function NewTodoForm({ isOpen, onClose } : NewTodoFormProps) {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState("");
   const createTodo = useMutation(api.functions.createTodo);
@@ -48,7 +53,7 @@ export function NewTodoForm({ isOpen, onClose }) {
       <Box sx={style}>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold" htmlFor="title">
+            <label id="modal-modal-title"className="text-sm font-semibold" htmlFor="title">
               {" "}
               Title
             </label>
@@ -60,7 +65,7 @@ export function NewTodoForm({ isOpen, onClose }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <label className="text-sm font-semibold" htmlFor="description">
+            <label id="modal-modal-description" className="text-sm font-semibold" htmlFor="description">
               {" "}
               Description
             </label>
