@@ -5,6 +5,9 @@ import { Id } from "../../../convex/_generated/dataModel";
 
 export function ToDoList() {
     const todos = useQuery(api.functions.listTodos); 
+    if (!todos || todos.length == 0) {
+      return <div className="flex items-center justify-center"><p>Nothing to do. Add a to-do to get started!</p></div>
+    }
 
   return (
     <ul className="space-y-2">

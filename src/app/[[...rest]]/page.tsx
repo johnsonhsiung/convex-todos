@@ -24,7 +24,7 @@ export default function Home() {
       <div className="max-w-screen-md mx-auto p-4 space-y-4 overflow-y-auto max-h-[80vh] relative">
         <Authenticated>
           
-          <ToDoList />
+          <ToDoList/>
           <NewTodoForm isOpen={openCreate} onClose={handleCloseCreate} />
           <GenerateTodosForm isOpen={openGenerate} onClose={handleCloseGenerate}/>
         </Authenticated>
