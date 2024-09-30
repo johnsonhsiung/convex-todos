@@ -34,7 +34,7 @@ export function GenerateTodosForm({ isOpen, onClose }: GenerateTodosFormProps) {
     e.preventDefault();
     try {
       setLoading(true);
-      const todos = await generateTodo({ prompt });
+      await generateTodo({ prompt });
     } catch (error) {
       console.log("Error", error);
     } finally {
